@@ -39,9 +39,9 @@ public class WindowTests
                 void Invoke(string name) => typeof(MainWindow).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance).Invoke(window, new object[] { null, null });
                 string Text() => ((TextBox)window.FindName("TeamText")).Text;
                 Assert.Equal("", Text());
-                Invoke("TopButton_Click"); Assert.Matches("^top050[01]$", Text());
-                Invoke("JugButton_Click"); Assert.Matches("^top050[01] jug050[01]$", Text());
-                Invoke("TopClear_Click"); Assert.Matches("^jug050[01]$", Text());
+                Invoke("TopButton_Click"); Assert.Matches("^top045[56]$", Text());
+                Invoke("JugButton_Click"); Assert.Matches("^top045[56] jug045[56]$", Text());
+                Invoke("TopClear_Click"); Assert.Matches("^jug045[56]$", Text());
                 Invoke("GameButton_Click"); Assert.Equal("", Text());
                 string[] positions = { "Top", "Jug", "Mid", "Bot", "Sup" };
                 string[] labels = { "TopLabel", "Jug", "Mid", "Bot", "Sup" };
@@ -49,12 +49,17 @@ public class WindowTests
                 string[] textNames = { "top", "jug", "mid", "ad", "sup" };
                 // All positions use the same haste result for countdown and generated recovery text.
                 foreach (var scenario in new[] {
-                    (Boots: false, Star: false, Other: "10:00", Mid: "10:00"),
-                    (Boots: false, Star: true, Other: "09:15", Mid: "09:15"),
-                    (Boots: true, Star: false, Other: "09:33", Mid: "09:10"),
-                    (Boots: true, Star: true, Other: "08:55", Mid: "08:38") })
+                    (Boots: false, Star: false, Quest: false, Other: "10:00", Mid: "10:00"),
+                    (Boots: false, Star: true, Quest: false, Other: "09:15", Mid: "09:15"),
+                    (Boots: true, Star: false, Quest: false, Other: "09:33", Mid: "09:33"),
+                    (Boots: true, Star: true, Quest: false, Other: "08:55", Mid: "08:55"),
+                    (Boots: true, Star: false, Quest: true, Other: "09:33", Mid: "09:10"),
+                    (Boots: true, Star: true, Quest: true, Other: "08:55", Mid: "08:38"),
+                    (Boots: false, Star: true, Quest: true, Other: "09:15", Mid: "09:15") })
                 {
                     Invoke("GameButton_Click");
+                    Assert.False(((CheckBox)window.FindName("MidQuestCompleted")).IsChecked == true);
+                    ((CheckBox)window.FindName("MidQuestCompleted")).IsChecked = scenario.Quest;
                     long anchor = Environment.TickCount64;
                     typeof(MainWindow).GetField("GameStartTime", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(window, anchor - 300000);
                     var expectedText = new List<string>();
@@ -62,7 +67,10 @@ public class WindowTests
                     {
                         ((CheckBox)window.FindName(positions[i] + "Boot")).IsChecked = scenario.Boots;
                         ((CheckBox)window.FindName(positions[i] + "Star")).IsChecked = scenario.Star;
+                        long beforeRecord = Environment.TickCount64;
                         Invoke(positions[i] + "Button_Click");
+                        long actualStart = (long)typeof(MainWindow).GetField(positions[i] + "StartTime", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(window);
+                        Assert.InRange(actualStart, beforeRecord - 5000, Environment.TickCount64 - 5000);
                         typeof(MainWindow).GetField(positions[i] + "StartTime", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(window, anchor);
                         Invoke(ticks[i]);
                         string recovery = i == 2 ? scenario.Mid : scenario.Other;
@@ -73,11 +81,27 @@ public class WindowTests
                     Assert.Equal(string.Join(" ", expectedText), Text());
                 }
                 Invoke("GameButton_Click"); Assert.Equal("", Text());
+                long questAnchor = Environment.TickCount64;
+                typeof(MainWindow).GetField("GameStartTime", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(window, questAnchor - 300000);
+                ((CheckBox)window.FindName("MidBoot")).IsChecked = true;
+                ((CheckBox)window.FindName("MidStar")).IsChecked = true;
+                Invoke("MidButton_Click");
+                typeof(MainWindow).GetField("MidStartTime", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(window, questAnchor);
+                typeof(MainWindow).GetMethod("RefreshTeamText", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(window, null);
+                Assert.Equal("mid0855", Text());
+                ((CheckBox)window.FindName("MidQuestCompleted")).IsChecked = true;
+                Assert.Equal("mid0838", Text());
+                Assert.Contains("08:38", ((Label)window.FindName("Mid")).Content.ToString());
+                var overlay = (FlowWindow)typeof(MainWindow).GetField("flowWindow", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(window);
+                Assert.Contains("08:38", ((Label)overlay.FindName("MidTime")).Content.ToString());
+                ((CheckBox)window.FindName("MidQuestCompleted")).IsChecked = false;
+                Assert.Equal("mid0855", Text());
+                Invoke("GameButton_Click");
                 var settings = (TimerSettings)typeof(MainWindow).GetField("settings", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(window);
                 settings.MayhemMode = true;
                 typeof(MainWindow).GetMethod("UpdateModeLabels", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(window, null);
                 Assert.Equal("1楼", ((Button)window.FindName("TopButton")).Content);
-                Invoke("TopButton_Click"); Assert.Matches("^1楼025[78]$", Text());
+                Invoke("TopButton_Click"); Assert.Matches("^1楼025[23]$", Text());
                 long recordedAt = (long)typeof(MainWindow).GetField("TopStartTime", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(window);
                 typeof(MainWindow).GetField("GameStartTime", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(window, recordedAt - 300000);
                 Invoke("Toptimer_Tick");

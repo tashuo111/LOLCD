@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Timer"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="闪现计时器 1.9.2" Height="630" Width="693" FontFamily="Consolas,Microsoft YaHei UI"  ResizeMode="NoResize" Closed="Window_Closed" x:Name="mainwindow" Icon="sanae.ico">
+        Title="闪现计时器 1.9.3" Height="630" Width="693" FontFamily="Consolas,Microsoft YaHei UI"  ResizeMode="NoResize" Closed="Window_Closed" x:Name="mainwindow" Icon="sanae.ico">
     <Window.Resources>
         <Style x:Key="BaseStyle">
             <Setter Property="Control.FontSize" Value="18"/>
@@ -160,6 +160,7 @@
         <Button Name="MidSubtract" Content="-"  Margin="335,140,0,0"  Style="{StaticResource BaseBottonStyle}" Click="MidSubtract_Click"/>
         <Button Name="MidClear" Content="归零"  Margin="373,140,0,0"  Click="MidClear_Click" Style="{StaticResource BottonStyle}"/>
         <CheckBox Name="MidBoot" Content="明朗鞋"  Margin="489,145,0,0"  Style="{StaticResource CheckBoxStyle}"/>
+        <CheckBox x:Name="MidQuestCompleted" Content="中路任务已完成（升级明朗鞋）" Margin="20,355,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="14" Foreground="#304455" ToolTip="仅中路且勾选明朗鞋时生效：普通鞋 +10，任务完成后的升级鞋 +20 召唤师技能急速。每次启动软件请确认当前对局任务状态。" Checked="MidQuestChanged" Unchecked="MidQuestChanged"/>
         <CheckBox x:Name="MidStar" Content="星界" Margin="576,144,0,0" Style="{StaticResource CheckBoxStyle}"/>
 
         <Label Name="Bot" Content="就绪"  Margin="140,180,0,0" Style="{StaticResource LableStyle}"/>
@@ -185,7 +186,7 @@
         <Button Name="WindowEdit" Content="位置编辑"  Margin="373,260,0,0"  ToolTip="编辑弹窗位置" Click="WindowEditFun" Style="{StaticResource BottonStyle}"/>
 
 
-        <Label x:Name="HotkeyHint" Content="小键盘默认快捷键：&#xA;. 重置&#x9;+ 时长&#x9;- 时长&#x9;0 开启/关闭浮窗&#x9;&#xA;F1 上路&#x9;F2 打野&#x9;F3 中路&#x9;F4下路&#x9;F5 辅助" Margin="20,300,0,0" Height="76" Style="{StaticResource BaseStyle}"/>
+        <Label x:Name="HotkeyHint" Content="小键盘默认快捷键：&#xA;. 重置&#x9;+ 时长&#x9;- 时长&#x9;0 开启/关闭浮窗&#x9;&#xA;F1 上路&#x9;F2 打野&#x9;F3 中路&#x9;F4下路&#x9;F5 辅助" Margin="20,300,0,0" Height="52" IsHitTestVisible="False" Style="{StaticResource BaseStyle}"/>
 
             <StackPanel Margin="20,382,20,0" VerticalAlignment="Top">
             <TextBlock Text="团队信息" FontSize="18" Foreground="#304455"/>

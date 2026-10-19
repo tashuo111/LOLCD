@@ -265,3 +265,9 @@ last-send.json
 # Release packages are published as GitHub Release assets.
 /downloads/
 
+
+# Local installed apps, backups, SDKs and scratch files
+/app/
+/archives/
+/.tools/
+/work/

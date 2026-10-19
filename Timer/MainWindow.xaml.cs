@@ -27,6 +27,7 @@ namespace Timer
         /// 加减步长 固定五秒
         /// </summary>
         private const int stepLength = 5000;
+        private const int recordCompensationMs = 5000; // Record each flash as having happened five seconds ago.
         /// <summary>
         /// 复位步长 固定一千秒
         /// </summary>
@@ -138,7 +139,7 @@ namespace Timer
             {
                 Interval = TimeSpan.FromMilliseconds(100)
             };
-            TopStartTime = Environment.TickCount64;
+            TopStartTime = Environment.TickCount64 - recordCompensationMs;
             recorded.Add("Top");
             RefreshTeamText();
             TopTimer.Tick += Toptimer_Tick;
@@ -193,7 +194,7 @@ namespace Timer
             };
             JugTimer.Tick += Jugtimer_Tick;
             JugTimer.IsEnabled = true;
-            JugStartTime = Environment.TickCount64;
+            JugStartTime = Environment.TickCount64 - recordCompensationMs;
             recorded.Add("Jug");
             RefreshTeamText();
         }
@@ -243,7 +244,7 @@ namespace Timer
             {
                 Interval = TimeSpan.FromMilliseconds(100)
             };
-            MidStartTime = Environment.TickCount64;
+            MidStartTime = Environment.TickCount64 - recordCompensationMs;
             recorded.Add("Mid");
             RefreshTeamText();
             MidTimer.Tick += Midtimer_Tick;
@@ -295,7 +296,7 @@ namespace Timer
             {
                 Interval = TimeSpan.FromMilliseconds(100)
             };
-            BotStartTime = Environment.TickCount64;
+            BotStartTime = Environment.TickCount64 - recordCompensationMs;
             recorded.Add("Bot");
             RefreshTeamText();
             BotTimer.Tick += Bottimer_Tick;
@@ -346,7 +347,7 @@ namespace Timer
             {
                 Interval = TimeSpan.FromMilliseconds(100)
             };
-            SupStartTime = Environment.TickCount64;
+            SupStartTime = Environment.TickCount64 - recordCompensationMs;
             recorded.Add("Sup");
             RefreshTeamText();
             SupTimer.Tick += Suptimer_Tick;
@@ -395,6 +396,7 @@ namespace Timer
             }
             TopStartTime = JugStartTime = MidStartTime = BotStartTime = SupStartTime = 0;
             recorded.Clear();
+            MidQuestCompleted.IsChecked = false;
             TopTimer?.Stop(); JugTimer?.Stop(); MidTimer?.Stop(); BotTimer?.Stop(); SupTimer?.Stop();
             TopLabel.Content = Jug.Content = Mid.Content = Bot.Content = Sup.Content = "就绪";
             flowWindow.TopTime.Content = flowWindow.JugTime.Content = flowWindow.MidTime.Content = flowWindow.BotTime.Content = flowWindow.SupTime.Content = "就绪";

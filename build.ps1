@@ -10,7 +10,7 @@ if ($env:OS -ne 'Windows_NT') {
 }
 
 $repoRoot = $PSScriptRoot
-$version = '1.9.2'
+$version = '1.9.3'
 $artifactRoot = Join-Path $repoRoot 'artifacts'
 $runDirectory = Join-Path $artifactRoot (Get-Date -Format 'yyyyMMdd-HHmmss-fff')
 $publishDirectory = Join-Path $runDirectory ('Timer-' + $version + '-win-x64')

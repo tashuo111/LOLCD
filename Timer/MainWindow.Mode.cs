@@ -9,7 +9,7 @@ public partial class MainWindow
     private readonly StackPanel[] floorEditors = new StackPanel[5];
     private bool modeInitializing;
     private string PositionName(int index) => settings.MayhemMode ? $"{index + 1}楼" : TextGeneratorService.Roles[index];
-    private double CooldownFor(int index, bool boot, bool star) => settings.MayhemMode ? settings.MayhemCooldownSeconds[index] : TimerUtil.FlashCooldownSeconds(index, boot, star);
+    private double CooldownFor(int index, bool boot, bool star) => settings.MayhemMode ? settings.MayhemCooldownSeconds[index] : TimerUtil.FlashCooldownSeconds(index, boot, star, MidQuestCompleted.IsChecked == true);
     private void InitializeMode()
     {
         modeInitializing = true;
@@ -46,6 +46,7 @@ public partial class MainWindow
     private void UpdateModeLabels()
     {
         ModeSelector.SelectedIndex = settings.MayhemMode ? 1 : 0;
+        MidQuestCompleted.Visibility = settings.MayhemMode ? Visibility.Collapsed : Visibility.Visible;
         var buttons = new[] { TopButton, JugButton, MidButton, BotButton, SupButton };
         var names = new[] { "上路", "打野", "中路", "下路", "辅助" };
         var boots = new[] { TopBoot, JugBoot, MidBoot, BotBoot, SupBoot };
@@ -53,13 +54,26 @@ public partial class MainWindow
         for (int i = 0; i < 5; i++)
         {
             buttons[i].Content = settings.MayhemMode ? PositionName(i) : names[i];
-            boots[i].ToolTip = $"明朗鞋：+{(i == 2 ? 20 : 10)} 急速；与星界急速相加后计算闪现 CD。";
-            stars[i].ToolTip = "星界：+18 急速。闪现 CD = 300 ÷ (1 + 总急速 ÷ 100)。";
+            buttons[i].ToolTip = "记录闪现时自动补偿 5 秒：按实际 CD 减 5 秒开始计时，恢复时间同步提前 5 秒。";
+            boots[i].ToolTip = i == 2
+                ? "明朗鞋：+10 召唤师技能急速；勾选中路任务已完成后，升级明朗鞋为 +20。与星界的 +18 相加计算。"
+                : "明朗鞋：+10 召唤师技能急速；与星界急速相加后计算闪现 CD。";
+            stars[i].ToolTip = "星界：+18 召唤师技能急速。闪现 CD = 300 ÷ (1 + 总急速 ÷ 100)。";
             boots[i].Visibility = stars[i].Visibility = settings.MayhemMode ? Visibility.Collapsed : Visibility.Visible;
             if (floorEditors[i] != null) floorEditors[i].Visibility = settings.MayhemMode ? Visibility.Visible : Visibility.Collapsed;
         }
         UpdateFlowLabels(); UpdateHotkeyLabels(); RefreshTeamText();
         ModeSelector.ToolTip = "海克斯模式基础闪现约 176.47 秒（300÷1.7）；装备/强化请按各楼游戏内实际 CD 修改。切换会清空 CD 记录。";
+    }
+    private void MidQuestChanged(object sender, RoutedEventArgs e)
+    {
+        if (modeInitializing || settings == null || flowWindow == null) return;
+        if (recorded.Contains("Mid"))
+        {
+            MidTimer?.Start();
+            Midtimer_Tick(null, null);
+        }
+        RefreshTeamText();
     }
     private void UpdateFlowLabels()
     {

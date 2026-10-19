@@ -2,9 +2,9 @@ using System;
 namespace Timer;
 public static class TimerUtil
 {
-    public static double FlashCooldownSeconds(int roleIndex, bool boots, bool cosmicInsight)
+    public static double FlashCooldownSeconds(int roleIndex, bool boots, bool cosmicInsight, bool midQuestCompleted = false)
     {
-        int haste = (boots ? (roleIndex == 2 ? 20 : 10) : 0) + (cosmicInsight ? 18 : 0);
+        int haste = (boots ? (roleIndex == 2 && midQuestCompleted ? 20 : 10) : 0) + (cosmicInsight ? 18 : 0);
         return 300.0 / (1.0 + haste / 100.0);
     }
 
